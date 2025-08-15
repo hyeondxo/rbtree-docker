@@ -71,6 +71,33 @@ static void left_rotate(rbtree *t, node_t *x) {
     x->parent = y; // 13. x의 부모를 y로 변경
 }
 
+/**
+ * sentinel 방식만을 사용하는 구현 (우회전)
+ * 상황 가정
+ * y의 부모가 p
+ * y의 left(왼쪽 자식)이 x, right가 C
+ * x의 왼쪽 자식이 A, 오른쪽 자식이 B
+ * y의 왼쪽 자식 x를 y 자리로 끌어올리고, y를 x의 오른쪽 자식으로 보내는 우회전
+ */
+static void right_rotate(rbtree *t, node_t *y) {
+    node_t *x = y->left;      // 1. x는 y의 왼쪽 자식
+    y->left = x->right;       // 2. y의 왼쪽 자식을 x의 오른쪽 자식 B로 변경
+    if (x->right != t->nil)   // 3. 만약 x의 오른쪽 자식 B가 존재한다면 (nil이 아니라면)
+        x->right->parent = y; // 4. B의 부모는 y가 됨
+
+    x->parent = y->parent;             // 5. x의 부모를 y의 부모로 변경 (x가 y의 자리로 승격)
+    if (y->parent == t->nil) {         // 6. y 자신이 트리의 루트라면
+        t->root = x;                   // 7. 트리의 루트는 x가 됨
+    } else if (y == y->parent->left) { // 8. y가 부모의 왼쪽 자식이었다면
+        y->parent->left = x;           // 9. 부모의 왼쪽 자식을 x로 변경
+    } else {                           // 10. y가 부모의 오른쪽 자식이었다면
+        y->parent->right = x;          // 11. 부모의 오른쪽 자식을 x로 변경
+    }
+
+    x->right = y;  // 12. x의 오른쪽 자식을 y로 변경
+    y->parent = x; // 13. y의 부모를 x로 변경
+}
+
 node_t *rbtree_insert(rbtree *t, const key_t key) {
     // TODO: implement insert
     return t->root;
