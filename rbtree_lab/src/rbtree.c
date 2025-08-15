@@ -43,6 +43,34 @@ void delete_rbtree(rbtree *t) {
     free(t);
 }
 
+/**
+ * sentinel 방식만을 사용하는 구현
+ * 상황 가정
+ * x의 부모가 p
+ * x의 right(오른쪽 자식)이 y, left가 A
+ * y의 왼쪽 자식이 B, 오른쪽 자식이 C
+ * x의 오른쪽 자식 y를 x 자리로 끌어올리고, x를 y의 왼쪽 자식으로 보내는 좌회전
+ */
+static void left_rotate(rbtree *t, node_t *x) {
+    node_t *y = x->right;    // 1. y는 x의 오른쪽 자식
+    x->right = y->left;      // 2. x의 오른쪽 자식을 y가 아닌 y의 왼쪽 자식인 B로 변경
+    if (y->left != t->nil) { // 3. 만약 y의 왼쪽 자식 B가 존재한다면 (nil이 아니라면)
+        y->left->parent = x; // 4. y 왼쪽 자식 B의 부모는 x가 됨
+    }
+
+    y->parent = x->parent;             // 5. y의 부모를 x의 부모로 변경
+    if (x->parent == t->nil) {         // 6. 만약 x 자신이 트리의 루트라면 ()
+        t->root = y;                   // 7. 트리의 루트는 y가 됨
+    } else if (x == x->parent->left) { // 8. 만약 x의 부모의 left가 x라면 (x가 왼쪽 자식이라면)
+        x->parent->left = y;           // 9. 기존 x 부모의 왼쪽 자식을 y로 변경
+    } else {                           // 10. x가 부모의 오른쪽 자식이었다면
+        x->parent->right = y;          // 11. x 부모 오른쪽이 y가 됨
+    }
+
+    y->left = x;   // 12. y의 왼쪽 자식을 x로 변경
+    x->parent = y; // 13. x의 부모를 y로 변경
+}
+
 node_t *rbtree_insert(rbtree *t, const key_t key) {
     // TODO: implement insert
     return t->root;
