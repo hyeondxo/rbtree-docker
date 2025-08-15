@@ -150,8 +150,41 @@ static void rbtree_fixup(rbtree *t, node_t *z) {
 }
 
 node_t *rbtree_insert(rbtree *t, const key_t key) {
-    // TODO: implement insert
-    return t->root;
+    node_t *z = (node_t *)malloc(sizeof(node_t)); // key를 넣을 새 노드 z 동적 할당
+    if (z == NULL) {                              // z 메모리 할당 실패
+        return NULL;
+    }
+    // z 노드 초기화
+    z->key = key;
+    z->color = RBTREE_RED;
+    z->parent = z->left = z->right = t->nil;
+
+    node_t *x = t->root; // x가 루트부터 내려갈 노드
+    node_t *y = t->nil;  // z의 부모 후보
+    // z의 올바른 삽입 위치 찾기
+    while (x != t->nil) {
+        y = x;
+        if (key < x->key) {
+            x = x->left;
+        } else {
+            x = x->right;
+        }
+    }
+
+    // z와 부모 자식 연결
+    z->parent = y;
+    if (y == t->nil) {
+        t->root = z;
+    } else if (key < y->key) {
+        y->left = z;
+    } else {
+        y->right = z;
+    }
+
+    // rb트리의 조건을 모두 만족하도록 복구
+    rbtree_fixup(t, z);
+
+    return z; // 삽입된 노드의 포인터 반환
 }
 
 node_t *rbtree_find(const rbtree *t, const key_t key) {

@@ -20,13 +20,14 @@ void test_init(void) {
 
 // root node should have proper values and pointers
 void test_insert_single(const key_t key) {
-    rbtree *t = new_rbtree();
-    node_t *p = rbtree_insert(t, key);
-    assert(p != NULL);
-    assert(t->root == p);
-    assert(p->key == key);
+    rbtree *t = new_rbtree();          // 빈 rbtree를 생성
+    node_t *p = rbtree_insert(t, key); // key를 삽입 후 삽입된 노드의 포인터를 반환
+    assert(p != NULL);                 // 삽입된 결과는 유효한 포인터여야 함
+    assert(t->root == p);              // 첫 삽입이므로 방금 삽입 노드가 루트여야 함
+    assert(p->key == key);             // 루트의 key값이 방금 삽입한 key와 같아야 함
     // assert(p->color == RBTREE_BLACK);  // color of root node should be black
 #ifdef SENTINEL
+    // root의 왼쪽, 오른쪽, 부모는 sentinel
     assert(p->left == t->nil);
     assert(p->right == t->nil);
     assert(p->parent == t->nil);
@@ -367,7 +368,7 @@ void test_find_erase_rand(const size_t n, const unsigned int seed) {
 
 int main(void) {
     test_init();
-    // test_insert_single(1024);
+    test_insert_single(1024);
     // test_find_single(512, 1024);
     // test_erase_root(128);
     // test_find_erase_fixed();
