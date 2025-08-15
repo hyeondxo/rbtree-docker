@@ -98,6 +98,57 @@ static void right_rotate(rbtree *t, node_t *y) {
     y->parent = x; // 13. y의 부모를 x로 변경
 }
 
+// 삽입 이후 rbtree가 규칙을 위반하지 않도록 복구
+static void rbtree_fixup(rbtree *t, node_t *z) {
+    // 삽입된 노드의 부모가 RED인 경우만 반복. 부모가 BLACK이어야 규칙 4를 위반x
+    while (z->parent->color == RBTREE_RED) {
+        if (z->parent == z->parent->parent->left) { // z의 부모가 z의 조부모의 왼쪽 자식이라면
+            node_t *y = z->parent->parent->right;   // 삼촌을 확인해야 함
+            // Case 1 : z 삼촌의 색이 RED라면 -> 부모, 삼촌 둘 다 RED
+            if (y->color == RBTREE_RED) {
+                // z 조부모와 그 자식들의 색을 바꾼 후 문제를 위로 올림
+                z->parent->color = RBTREE_BLACK;       // 1. z 부모의 색 BLACK
+                y->color = RBTREE_BLACK;               // 2. z 삼촌의 색 BLACK
+                z->parent->parent->color = RBTREE_RED; // 3. z 조부모의 색 RED
+                z = z->parent->parent;                 // 4. 조부모부터 다시 검사
+            } else {                                   // z 삼촌의 색이 BLACK
+                // Case 2 : z가 zp의 오른쪽 자식일 경우
+                if (z == z->parent->right) {
+                    z = z->parent; // 회전 축을 z에서 z의 부모로 변경
+                    // 윗줄이 잘 이해가 안갔음. left rotate시 z의 부모가 원래 z가 있어야 할 자리로 가기 때문에
+                    // z를 z->parent로 변경해주어야 올바른 case 3으로 시작할 수 있게 되는 거였다.
+                    left_rotate(t, z); // 좌회전하여 case 3으로 만들기
+                }
+                // Case 3 : z가 z 부모의 왼쪽 자식
+                z->parent->color = RBTREE_BLACK;       // 1. z의 부모를 black
+                z->parent->parent->color = RBTREE_RED; // 2. z의 조부모를 red
+                right_rotate(t, z->parent->parent);    // 3. z의 조부모를 기준으로 right rotate
+                // -> RED-RED 인접이 해소되고 Black-height가 유지됨
+            }
+        } else {                                 // 대칭 케이스 : 부모가 조부모의 오른쪽 자식
+            node_t *y = z->parent->parent->left; // 삼촌은 조부모의 왼쪽
+            // Case 1
+            if (y->color == RBTREE_RED) {
+                z->parent->color = RBTREE_BLACK;
+                y->color = RBTREE_BLACK;
+                z->parent->parent->color = RBTREE_RED;
+                z = z->parent->parent;
+            } else {
+                // Case 2
+                if (z == z->parent->left) {
+                    z = z->parent;
+                    right_rotate(t, z);
+                }
+                // Case 3
+                z->parent->color = RBTREE_BLACK;
+                z->parent->parent->color = RBTREE_RED;
+                left_rotate(t, z->parent->parent);
+            }
+        }
+    }
+    t->root->color = RBTREE_BLACK; // 루트의 색은 항상 BLACK
+}
+
 node_t *rbtree_insert(rbtree *t, const key_t key) {
     // TODO: implement insert
     return t->root;
