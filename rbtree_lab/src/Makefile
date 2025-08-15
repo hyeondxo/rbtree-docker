@@ -13,7 +13,7 @@
 # -g : 디버깅 심볼 포함(디버거에서 코드 라인 추적 가능)
 # Make는 .c 파일을 .o파일로 변환할 때 자동으로 $(CFLAGS)를 사용
 # 즉, 이것은 빌드 과정에서 GCC/Clang에 전달될 옵션을 설정하는 것
-CFLAGS=-Wall -g
+CFLAGS=-Wall -g -DSENTINEL
 
 # 타겟(driver) : 최종적으로 만들고 싶은 결과물 -> 실행 파일 driver
 # 의존성(driver.o, rbtree.o) : driver를 만들기 위해 반드시 있어야 하는 파일 -> 컴파일된 오브젝트 파일(.o)

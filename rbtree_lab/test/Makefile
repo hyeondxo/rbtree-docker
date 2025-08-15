@@ -3,7 +3,7 @@
 # 헤더 검색 경로에 ../src를 추가
 # 테스트 코드가 rbtree.h를 include하므로, 컴파일러가 ../src/rbtree.h를 찾을 수 있게 해줌
 # 주석을 풀어 -DESENTINEL을 활성화하면 테스트 코드가 센티넬 모드 기준으로 동작을 검증하게 됨
-CFLAGS=-I ../src -Wall -g #-DSENTINEL
+CFLAGS=-I ../src -Wall -g -DSENTINEL
 
 # test 타겟은 test-rbtree 실행 파일에 의존(없으면 먼저 빌드)
 # 두 명령어를 순차 실행 - 첫 번째 명령에서 실패하면 그 즉시 멈추고 두 번째는 수행되지 않음

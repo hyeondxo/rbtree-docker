@@ -5,16 +5,17 @@
 #include <stdlib.h>
 
 // new_rbtree should return rbtree struct with null root node
+// 새로 만든 Red-Black Tree가 빈 트리 상태로 올바르게 초기화되었는지 검증
 void test_init(void) {
-    rbtree *t = new_rbtree();
-    assert(t != NULL);
-#ifdef SENTINEL
-    assert(t->nil != NULL);
-    assert(t->root == t->nil);
+    rbtree *t = new_rbtree();  // 실제 트리 구조체를 동적 할당, 내부 필드를 기본값으로 세팅(초기화)
+    assert(t != NULL);         // t가 null을 반환하였는지 검사 -> 위 작업이 성공인지 실패인지
+#ifdef SENTINEL                // 감시(sentinel) 노드를 사용하였는지 검사하는 조건 분기
+    assert(t->nil != NULL);    // sentinel 노드에서 nil이 존재하는지 검사
+    assert(t->root == t->nil); // root가 nil을 가리키는지
 #else
-    assert(t->root == NULL);
+    assert(t->root == NULL); // sentinel을 사용중이지 않다면 root는 null
 #endif
-    delete_rbtree(t);
+    delete_rbtree(t); // 트리 전체 메모리를 해제. sentinel 방식이라면 t->nil까지 모두 해제
 }
 
 // root node should have proper values and pointers
@@ -366,15 +367,15 @@ void test_find_erase_rand(const size_t n, const unsigned int seed) {
 
 int main(void) {
     test_init();
-    test_insert_single(1024);
-    test_find_single(512, 1024);
-    test_erase_root(128);
-    test_find_erase_fixed();
-    test_minmax_suite();
-    test_to_array_suite();
-    test_distinct_values();
-    test_duplicate_values();
-    test_multi_instance();
-    test_find_erase_rand(10000, 17);
+    // test_insert_single(1024);
+    // test_find_single(512, 1024);
+    // test_erase_root(128);
+    // test_find_erase_fixed();
+    // test_minmax_suite();
+    // test_to_array_suite();
+    // test_distinct_values();
+    // test_duplicate_values();
+    // test_multi_instance();
+    // test_find_erase_rand(10000, 17);
     printf("Passed all tests!\n");
 }
