@@ -33,14 +33,24 @@ rbtree *new_rbtree(void) {
     return p;
 }
 
+static void free_subtree(rbtree *t, node_t *x) {
+    if (x == t->nil) {
+        return;
+    }
+    // 후위 순회를 통해 모든 자식 노드까지 메모리 해제
+    // -> 왜 후위순회여야 하는가?
+    // 부모를 먼저 해제한다면 자식 노드를 참조할 수 없게 되기때문에 자식을 해제하지 못함
+    free_subtree(t, x->left);
+    free_subtree(t, x->right);
+    free(x);
+}
+
 void delete_rbtree(rbtree *t) {
     if (t == NULL)
         return;
-
-#ifdef SENTINEL
-    free(t->nil);
-#endif
-    free(t);
+    free_subtree(t, t->root);
+    free(t->nil); // 센티넬 해제
+    free(t);      // 트리 자체를 해제
 }
 
 /**
