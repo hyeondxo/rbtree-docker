@@ -292,6 +292,7 @@ void test_distinct_values() {
 }
 
 // rbtree should manage values with duplicate
+// 중복 값 존재 시에도 RED-BLACK, 탐색 불변식 유지를 검증
 void test_duplicate_values() {
     const key_t entries[] = {10, 5, 5, 34, 6, 23, 12, 12, 6, 12};
     const size_t n = sizeof(entries) / sizeof(entries[0]);
@@ -382,7 +383,7 @@ int main(void) {
     // test_minmax_suite();
     test_to_array_suite();
     test_distinct_values();
-    // test_duplicate_values();
+    test_duplicate_values();
     // test_multi_instance();
     // test_find_erase_rand(10000, 17);
     printf("Passed all tests!\n");
