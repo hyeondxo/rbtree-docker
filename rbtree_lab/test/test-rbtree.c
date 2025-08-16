@@ -148,6 +148,7 @@ void test_to_array(rbtree *t, const key_t *arr, const size_t n) {
     free(res);
 }
 
+// 트리의 인스턴스 2개를 동시에 운영해도 각각 정렬/불변이 유지되는지 검증
 void test_multi_instance() {
     rbtree *t1 = new_rbtree();
     assert(t1 != NULL);
@@ -384,7 +385,7 @@ int main(void) {
     test_to_array_suite();
     test_distinct_values();
     test_duplicate_values();
-    // test_multi_instance();
+    test_multi_instance();
     // test_find_erase_rand(10000, 17);
     printf("Passed all tests!\n");
 }
