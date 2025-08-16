@@ -284,6 +284,7 @@ void test_rb_constraints(const key_t arr[], const size_t n) {
 }
 
 // rbtree should manage distinct values
+// 삭제 기능 사용 x, 중복 없는 값들에 대해 RED-BLACK 불변식과 BST 불변식 유지를 검증
 void test_distinct_values() {
     const key_t entries[] = {10, 5, 8, 34, 67, 23, 156, 24, 2, 12};
     const size_t n = sizeof(entries) / sizeof(entries[0]);
@@ -380,7 +381,7 @@ int main(void) {
     // test_find_erase_fixed();
     // test_minmax_suite();
     test_to_array_suite();
-    // test_distinct_values();
+    test_distinct_values();
     // test_duplicate_values();
     // test_multi_instance();
     // test_find_erase_rand(10000, 17);
