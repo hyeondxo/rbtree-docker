@@ -247,6 +247,25 @@ static void inorder_store(const rbtree *t, const node_t *x, key_t *result, size_
 }
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
-    // TODO: implement to_array
+    if (t == NULL || arr == NULL) {
+        return -1;
+    }
+    size_t index = 0;
+    /**
+     * int가 아닌 size_t 타입을 왜 쓰는가?
+     * size_t는 크기나 인덱스를 표현하는데 최적화된 타입임
+     * C 표준 라이브러리에서 malloc, sizeof, strlen과 같은 함수들이 반환하는 값이 전부 size_t
+     * unsigned int와 유사하게 양수만 표현이 가능하지만 더 큰 범위를 가짐
+     * -> 메모리나 배열 크기를 표현할 때 절대 음수가 될 수 없고, 시스템 메모리 한계까지 표현 가능
+     */
+    /**
+     * index를 값 전달이 아닌 주소 전달을 해야하는 이유?
+     * index를 값 전달로 사용하게 되면 각 재귀 호출마다 index 값이 복사되어 사용됨
+     * 즉, 왼쪽 서브트리에 값을 넣고 돌아왔을 때 index 값이 갱신되지 않고 계속 0번째 칸에 덮어씌워짐
+     * index의 주소를 넘기면 모든 재귀에서 하나의 index를 공유할 수 있음 -> 증가된 값 유지
+     * 따라서 왼쪽 서브트리에 몇 개를 넣었는지, result 배열에 얼만큼 채워졌는지를 알 수 있기 때문에 올바른 누적이 가능
+     * -> 오름차순 정렬 배열을 구현할 수 있게됨
+     */
+    inorder_store(t, t->root, arr, &index, n);
     return 0;
 }

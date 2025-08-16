@@ -129,16 +129,21 @@ void test_minmax(key_t *arr, const size_t n) {
     delete_rbtree(t);
 }
 
+/**
+ * t : rbtree 포인터
+ * arr : 트리에 삽입할 값들 (배열)
+ * n : 배열 원소 개수
+ */
 void test_to_array(rbtree *t, const key_t *arr, const size_t n) {
     assert(t != NULL);
 
-    insert_arr(t, arr, n);
-    qsort((void *)arr, n, sizeof(key_t), comp);
+    insert_arr(t, arr, n);                      // 트리에 arr 삽입
+    qsort((void *)arr, n, sizeof(key_t), comp); // arr을 오름차순 정렬
 
-    key_t *res = calloc(n, sizeof(key_t));
-    rbtree_to_array(t, res, n);
+    key_t *res = calloc(n, sizeof(key_t)); // 결과 배열 동적 할당. 배열 원소 개수 n * key_t(int)의 size
+    rbtree_to_array(t, res, n);            // 트리의 중위순회 결과를 res에 채워넣음 -> 오름차순
     for (int i = 0; i < n; i++) {
-        assert(arr[i] == res[i]);
+        assert(arr[i] == res[i]); // 원본 배열의 오름차순 결과와 트리에서 중위 순회를 통해 가져온 결과가 같아야 함
     }
     free(res);
 }
@@ -298,6 +303,7 @@ void test_minmax_suite() {
     test_minmax(entries, n);
 }
 
+// 중위순회 결과가 오름차순 배열과 같은지 검증
 void test_to_array_suite() {
     rbtree *t = new_rbtree();
     assert(t != NULL);
@@ -373,7 +379,7 @@ int main(void) {
     // test_erase_root(128);
     // test_find_erase_fixed();
     // test_minmax_suite();
-    // test_to_array_suite();
+    test_to_array_suite();
     // test_distinct_values();
     // test_duplicate_values();
     // test_multi_instance();
