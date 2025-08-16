@@ -41,16 +41,16 @@ void test_insert_single(const key_t key) {
 
 // find should return the node with the key or NULL if no such node exists
 void test_find_single(const key_t key, const key_t wrong_key) {
-    rbtree *t = new_rbtree();
-    node_t *p = rbtree_insert(t, key);
+    rbtree *t = new_rbtree();          // 빈 rbtree 생성
+    node_t *p = rbtree_insert(t, key); // 노드 삽입 후 포인터 반환
 
-    node_t *q = rbtree_find(t, key);
-    assert(q != NULL);
-    assert(q->key == key);
-    assert(q == p);
+    node_t *q = rbtree_find(t, key); // 방금 삽입한 key를 탐색
+    assert(q != NULL);               // 찾았으니 null이면 안됨
+    assert(q->key == key);           // 찾은 노드의 key와 일치해야함
+    assert(q == p);                  // 주소까지 동일해야 함
 
-    q = rbtree_find(t, wrong_key);
-    assert(q == NULL);
+    q = rbtree_find(t, wrong_key); // 존재하지 않는 key로 검색
+    assert(q == NULL);             // 없을테니 NULL 반환
 
     delete_rbtree(t);
 }
@@ -369,7 +369,7 @@ void test_find_erase_rand(const size_t n, const unsigned int seed) {
 int main(void) {
     test_init();
     test_insert_single(1024);
-    // test_find_single(512, 1024);
+    test_find_single(512, 1024);
     // test_erase_root(128);
     // test_find_erase_fixed();
     // test_minmax_suite();
