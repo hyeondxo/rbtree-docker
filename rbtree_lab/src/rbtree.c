@@ -229,6 +229,23 @@ int rbtree_erase(rbtree *t, node_t *p) {
     return 0;
 }
 
+// rbtree를 중위 순회하며 결과 배열에 저장
+// t, x는 읽기만 하므로 const가 적절
+static void inorder_store(const rbtree *t, const node_t *x, key_t *result, size_t *index, const size_t n) {
+    if (x == t->nil) {
+        return;
+    }
+    // 여기서 index의 타입은 이미 size_t * 이다
+    inorder_store(t, x->left, result, index, n);
+    if (*index < n) { // 유효한 범위(n)만큼만 결과 삽입. 테스트에서 필수는 아님
+        result[*index] = x->key;
+        (*index)++;
+    } else {
+        return;
+    }
+    inorder_store(t, x->right, result, index, n);
+}
+
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
     // TODO: implement to_array
     return 0;
