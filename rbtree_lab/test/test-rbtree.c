@@ -379,7 +379,7 @@ int main(void) {
     test_init();
     test_insert_single(1024);
     test_find_single(512, 1024);
-    // test_erase_root(128);
+    test_erase_root(128);
     // test_find_erase_fixed();
     // test_minmax_suite();
     test_to_array_suite();

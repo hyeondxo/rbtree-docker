@@ -224,8 +224,127 @@ node_t *rbtree_max(const rbtree *t) {
     return t->root;
 }
 
-int rbtree_erase(rbtree *t, node_t *p) {
-    // TODO: implement erase
+// 서브트리에서 successor 찾기 (오른쪽 서브트리 중 가장 작은 값)
+static node_t *subtree_min(rbtree *t, node_t *x) {
+    while (x->left != t->nil) { // 왼쪽 끝까지 내려가며 최소 찾기
+        x = x->left;
+    }
+    return x;
+}
+
+// u의 자리에 v를 이식
+static void transplant(rbtree *t, node_t *u, node_t *v) {
+    if (u->parent == t->nil) { // u가 루트였다면
+        t->root = v;
+    } else if (u == u->parent->left) { // u가 왼쪽 자식이었다면
+        u->parent->left = v;
+    } else { // u가 오른쪽 자식이었다면
+        u->parent->right = v;
+    }
+    v->parent = u->parent; // 부모 갱신
+}
+
+// 삭제 후 doubly black을 해소
+// x는 검정 높이를 보전해야하는 자리
+static void delete_fixup(rbtree *t, node_t *x) {
+    // x가 루트가 아니고, x가 검정일 때만 반복
+    while (x != t->root && x->color == RBTREE_BLACK) {
+        if (x == x->parent->left) {       // x가 왼쪽 자식일 경우
+            node_t *w = x->parent->right; // x의 형제 w
+            // Case 1 : 형제가 RED
+            if (w->color == RBTREE_RED) {
+                w->color = RBTREE_BLACK;       // 형제를 BLACK
+                x->parent->color = RBTREE_RED; // 부모를 RED
+                left_rotate(t, x->parent);     // 부모 기준 좌회전으로 검정 형제의 상황 만들기
+                w = x->parent->right;          // 새로운 형제 갱신
+            }
+
+            // 여기부터는 형제가 BLACK
+            // Case 2 : 형제의 두 자식 모두 BLACK -> 형제를 RED로 칠하고 부모로 extra-black을 올려보냄
+            if (w->left->color == RBTREE_BLACK && w->right->color == RBTREE_BLACK) {
+                w->color = RBTREE_RED;
+                x = x->parent;
+            } else {
+                // Case 3 : 형제의 오른쪽 자식이 BLACK, 왼쪽 자식이 RED
+                w->left->color = RBTREE_BLACK; // 왼쪽 자식을 BLACK
+                w->color = RBTREE_RED;         // 형제는 RED
+                right_rotate(t, w);            // 형제 기준 우회전으로 Case 4를 만들고 Case 4로 해결
+                w = x->parent->right;          // 형제 갱신
+            }
+            // Case 4 : 형제의 오른쪽 자식이 RED
+            w->color = x->parent->color;     // 형제는 부모의 색을 물려받음
+            x->parent->color = RBTREE_BLACK; // 부모는 BLACK
+            w->right->color = RBTREE_BLACK;  // 형제의 오른쪽 자식을 BLACK
+            left_rotate(t, x->parent);       // 부모 기준 좌회전
+            x = t->root;                     // 이거 왜하냐
+        } else {                             // 대칭 : x가 오른쪽 자식인 경우
+            node_t *w = x->parent->left;
+            // Case 1
+            if (w->color == RBTREE_RED) {
+                w->color = RBTREE_BLACK;
+                x->parent->color = RBTREE_RED;
+                right_rotate(t, x->parent);
+                w = x->parent->left;
+            }
+            // Case 2
+            if (w->right->color == RBTREE_BLACK && w->left->color == RBTREE_BLACK) {
+                w->color = RBTREE_RED;
+                x = x->parent;
+            } else {
+                // Case 3
+                w->right->color = RBTREE_BLACK;
+                w->color = RBTREE_RED;
+                left_rotate(t, w);
+                w = x->parent->left;
+            }
+            // Case 4
+            w->color = x->parent->color;
+            x->parent->color = RBTREE_BLACK;
+            w->left->color = RBTREE_BLACK;
+            right_rotate(t, x->parent);
+            x = t->root;
+        }
+    }
+    x->color = RBTREE_BLACK;
+}
+
+int rbtree_erase(rbtree *t, node_t *z) {
+    if (t == NULL || z == NULL || z == t->nil) {
+        return -1;
+    }
+
+    node_t *y = z;                     // 트리에서 제거될 노드
+    color_t y_origin_color = y->color; // 제거되는 노드의 원래 색
+    node_t *x;                         // y를 치환하고 남는 자리
+
+    if (z->left == t->nil) {         // 왼쪽 자식이 없는 경우
+        x = z->right;                // z 자리를 z->right로 매움
+        transplant(t, z, z->right);  // z 위치에 z의 오른쪽 자식을 이식
+    } else if (z->right == t->nil) { // 오른쪽 자식이 없는 경우
+        x = z->left;
+        transplant(t, z, z->left);
+    } else {                          // 자식이 둘 다 있는 경우
+        y = subtree_min(t, z->right); // 후계자 찾기
+        y_origin_color = y->color;    // 기존 색깔 저장
+        x = y->right;                 // 이거 이해안됨
+        if (y->parent == z) {         // y의 부모가 z라면 -> 바로 오른쪽 자식이 최소
+            x->parent = y;
+        } else {
+            transplant(t, y, y->right);
+            y->right = z->right;
+            y->right->parent = y;
+        }
+        transplant(t, z, y);
+        y->left = z->left;
+        y->left->parent = y;
+        y->color = z->color;
+    }
+
+    free(z);
+    if (y_origin_color == RBTREE_BLACK) {
+        delete_fixup(t, x);
+    }
+
     return 0;
 }
 
