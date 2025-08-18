@@ -214,14 +214,28 @@ node_t *rbtree_find(const rbtree *t, const key_t key) {
     return NULL;
 }
 
+// 트리에서의 최솟값 반환
 node_t *rbtree_min(const rbtree *t) {
-    // TODO: implement find
-    return t->root;
+    node_t *x = t->root;
+    if (x == NULL) {
+        return NULL;
+    }
+    while (x->left != t->nil) {
+        x = x->left;
+    }
+    return x;
 }
 
+// 트리의 최댓값 반환
 node_t *rbtree_max(const rbtree *t) {
-    // TODO: implement find
-    return t->root;
+    node_t *x = t->root;
+    if (x == NULL) {
+        return NULL;
+    }
+    while (x->right != t->nil) {
+        x = x->right;
+    }
+    return x;
 }
 
 // 서브트리에서 successor 찾기 (오른쪽 서브트리 중 가장 작은 값)

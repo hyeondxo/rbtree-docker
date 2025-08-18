@@ -96,37 +96,37 @@ void test_minmax(key_t *arr, const size_t n) {
     // null array is not allowed
     assert(n > 0 && arr != NULL);
 
-    rbtree *t = new_rbtree();
+    rbtree *t = new_rbtree(); // rbtree 생성
     assert(t != NULL);
 
-    insert_arr(t, arr, n);
+    insert_arr(t, arr, n); // 배열 모든 원소를 트리에 삽입
     assert(t->root != NULL);
 #ifdef SENTINEL
     assert(t->root != t->nil);
 #endif
 
-    qsort((void *)arr, n, sizeof(key_t), comp);
-    node_t *p = rbtree_min(t);
+    qsort((void *)arr, n, sizeof(key_t), comp); // 배열을 오름차순 정렬해서 기준값 확보
+    node_t *p = rbtree_min(t);                  // 트리에서의 최솟값
     assert(p != NULL);
-    assert(p->key == arr[0]);
+    assert(p->key == arr[0]); // 정렬된 배열의 최솟값과 같은지?
 
-    node_t *q = rbtree_max(t);
+    node_t *q = rbtree_max(t); // 트리의 최댓값
     assert(q != NULL);
-    assert(q->key == arr[n - 1]);
+    assert(q->key == arr[n - 1]); // 정렬된 배열의 최댓값과 같은지?
 
-    rbtree_erase(t, p);
-    p = rbtree_min(t);
+    rbtree_erase(t, p); // 최솟값 삭제
+    p = rbtree_min(t);  // 최솟값 갱신 -> 두 번째로 작은 값으로 변경
     assert(p != NULL);
-    assert(p->key == arr[1]);
+    assert(p->key == arr[1]); // 정렬된 배열의 두 번째 작은 값과 같은지?
 
     if (n >= 2) {
-        rbtree_erase(t, q);
-        q = rbtree_max(t);
+        rbtree_erase(t, q); // 최댓값 삭제
+        q = rbtree_max(t);  // 두 번째로 큰 최댓값으로 갱신
         assert(q != NULL);
-        assert(q->key == arr[n - 2]);
+        assert(q->key == arr[n - 2]); // 정렬된 배열의 두 번째 최댓값과 같은지?
     }
 
-    delete_rbtree(t);
+    delete_rbtree(t); // 트리 삭제
 }
 
 /**
@@ -381,7 +381,7 @@ int main(void) {
     test_find_single(512, 1024);
     test_erase_root(128);
     test_find_erase_fixed();
-    // test_minmax_suite();
+    test_minmax_suite();
     test_to_array_suite();
     test_distinct_values();
     test_duplicate_values();
