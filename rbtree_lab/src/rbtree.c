@@ -265,19 +265,21 @@ static void delete_fixup(rbtree *t, node_t *x) {
                 w->color = RBTREE_RED;
                 x = x->parent;
             } else {
-                // Case 3 : 형제의 오른쪽 자식이 BLACK, 왼쪽 자식이 RED
-                w->left->color = RBTREE_BLACK; // 왼쪽 자식을 BLACK
-                w->color = RBTREE_RED;         // 형제는 RED
-                right_rotate(t, w);            // 형제 기준 우회전으로 Case 4를 만들고 Case 4로 해결
-                w = x->parent->right;          // 형제 갱신
+                if (w->right->color == RBTREE_BLACK) {
+                    // Case 3 : 형제의 오른쪽 자식이 BLACK, 왼쪽 자식이 RED
+                    w->left->color = RBTREE_BLACK; // 왼쪽 자식을 BLACK
+                    w->color = RBTREE_RED;         // 형제는 RED
+                    right_rotate(t, w);            // 형제 기준 우회전으로 Case 4를 만들고 Case 4로 해결
+                    w = x->parent->right;          // 형제 갱신
+                }
             }
             // Case 4 : 형제의 오른쪽 자식이 RED
             w->color = x->parent->color;     // 형제는 부모의 색을 물려받음
             x->parent->color = RBTREE_BLACK; // 부모는 BLACK
             w->right->color = RBTREE_BLACK;  // 형제의 오른쪽 자식을 BLACK
             left_rotate(t, x->parent);       // 부모 기준 좌회전
-            x = t->root;                     // 이거 왜하냐
-        } else {                             // 대칭 : x가 오른쪽 자식인 경우
+            x = t->root; // 이거 왜하냐 -> while문 종료의 break의 역할임. Case 4가 해결되면 무조건 해결됨
+        } else {         // 대칭 : x가 오른쪽 자식인 경우
             node_t *w = x->parent->left;
             // Case 1
             if (w->color == RBTREE_RED) {
@@ -292,10 +294,12 @@ static void delete_fixup(rbtree *t, node_t *x) {
                 x = x->parent;
             } else {
                 // Case 3
-                w->right->color = RBTREE_BLACK;
-                w->color = RBTREE_RED;
-                left_rotate(t, w);
-                w = x->parent->left;
+                if (w->left->color == RBTREE_BLACK) {
+                    w->right->color = RBTREE_BLACK;
+                    w->color = RBTREE_RED;
+                    left_rotate(t, w);
+                    w = x->parent->left;
+                }
             }
             // Case 4
             w->color = x->parent->color;
@@ -305,7 +309,7 @@ static void delete_fixup(rbtree *t, node_t *x) {
             x = t->root;
         }
     }
-    x->color = RBTREE_BLACK;
+    x->color = RBTREE_BLACK; // x는 삭제 노드를 대체하게된 노드. 이것을 BLACK으로 설정하여 규칙 2, 4를 해결
 }
 
 int rbtree_erase(rbtree *t, node_t *z) {
@@ -326,7 +330,7 @@ int rbtree_erase(rbtree *t, node_t *z) {
     } else {                          // 자식이 둘 다 있는 경우
         y = subtree_min(t, z->right); // 후계자 찾기
         y_origin_color = y->color;    // 기존 색깔 저장
-        x = y->right;                 // 이거 이해안됨
+        x = y->right;                 // x가 삭제된 노드의 대체가 되기때문에 y->right로하면 nil이나
         if (y->parent == z) {         // y의 부모가 z라면 -> 바로 오른쪽 자식이 최소
             x->parent = y;
         } else {
@@ -334,7 +338,7 @@ int rbtree_erase(rbtree *t, node_t *z) {
             y->right = z->right;
             y->right->parent = y;
         }
-        transplant(t, z, y);
+        transplant(t, z, y); // y가 대체되었으니 왼쪽 오른쪽을 올바르게 이어주기
         y->left = z->left;
         y->left->parent = y;
         y->color = z->color;
