@@ -318,8 +318,10 @@ void test_to_array_suite() {
     delete_rbtree(t);
 }
 
+// 올바른 삽입 검증
+// 올바른 삭제 검증
 void test_find_erase(rbtree *t, const key_t *arr, const size_t n) {
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) { // 삽입 검증
         node_t *p = rbtree_insert(t, arr[i]);
         assert(p != NULL);
     }
@@ -361,14 +363,21 @@ void test_find_erase_fixed() {
     delete_rbtree(t);
 }
 
+// 난수로 만들어진 키 집합에 대해
+// 1. 전부 삽입 -> 모두 탐색 가능
+// 2. 모두 삭제 -> 더이상 탐색 불가
+// 3. 다시 개별 삽입, 탐색, 삭제를 반복하며 검증
 void test_find_erase_rand(const size_t n, const unsigned int seed) {
-    srand(seed);
+    srand(seed); // 고정 시드 - 매 실행마다 같은 난수를 얻어 테스트를 재현 가능하게 함
     rbtree *t = new_rbtree();
-    key_t *arr = calloc(n, sizeof(key_t));
-    for (int i = 0; i < n; i++) {
+    key_t *arr = calloc(n, sizeof(key_t)); // n개 키를 담을 배열 동적 할당
+    for (int i = 0; i < n; i++) {          // n개의 난수를 arr에 채워넣음
         arr[i] = rand();
     }
 
+    // arr의 모든 원소 삽입 -> find 검증
+    // 각 노드를 삭제 -> 같은 키로 찾을 시 NULL인지 검증
+    // 다시 삽입 -> find가 같은 포인터 주소를 돌려주는디 확인 후 삭제
     test_find_erase(t, arr, n);
 
     free(arr);
@@ -386,6 +395,6 @@ int main(void) {
     test_distinct_values();
     test_duplicate_values();
     test_multi_instance();
-    // test_find_erase_rand(10000, 17);
+    test_find_erase_rand(10000, 17);
     printf("Passed all tests!\n");
 }
